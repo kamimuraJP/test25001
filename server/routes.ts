@@ -23,7 +23,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       secure: false, // Set to true in production with HTTPS
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: 'lax' // Add sameSite for better compatibility
+      sameSite: 'lax' // Lax for development
     },
     name: 'connect.sid' // Explicit session cookie name
   }));
