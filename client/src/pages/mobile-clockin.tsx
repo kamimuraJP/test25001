@@ -27,7 +27,7 @@ export default function MobileClockIn() {
 
   const updateStatusMutation = useMutation({
     mutationFn: async (data: { status: StatusType; comment: string }) => {
-      await apiRequest('POST', '/api/employees/39/status', {
+      await apiRequest('POST', '/api/employees/38/status', {
         status: data.status,
         comment: data.comment,
         location: null,
