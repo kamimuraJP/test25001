@@ -22,15 +22,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     cookie: {
       secure: false, // Set to true in production with HTTPS
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: 'lax' // Add sameSite for better compatibility
     }
   }));
 
   // Middleware to check authentication
   const requireAuth = (req: any, res: any, next: any) => {
+    console.log('Auth check - Session ID:', req.session?.id);
+    console.log('Auth check - Session user:', req.session?.user?.username);
+    
     if (req.session?.user) {
       return next();
     }
+    console.log('Auth failed - No session user found');
     return res.status(401).json({ message: "Unauthorized" });
   };
 
@@ -210,10 +215,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Store user in session (excluding password)
       const { password: _, ...userWithoutPassword } = user;
       (req.session as any).user = userWithoutPassword;
-
-      res.json({ 
-        message: "ログインに成功しました",
-        user: userWithoutPassword
+      
+      // Save session explicitly
+      req.session.save((err: any) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.status(500).json({ message: "セッション保存に失敗しました" });
+        }
+        
+        console.log('Session saved for user:', userWithoutPassword.username);
+        res.json({ 
+          message: "ログインに成功しました",
+          user: userWithoutPassword
+        });
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
