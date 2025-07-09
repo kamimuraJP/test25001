@@ -129,7 +129,7 @@ export default function Dashboard() {
     <div className="p-6">
       {/* Quick Actions */}
       <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">クイックアクション</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">自分のステータス</h2>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
           <Button
             variant={selectedStatus === 'on-site' ? 'default' : 'outline'}
