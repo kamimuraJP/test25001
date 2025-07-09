@@ -15,16 +15,6 @@ const navItems = [
     icon: LayoutDashboard,
   },
   {
-    path: '/attendance',
-    label: '勤怠管理',
-    icon: Clock,
-  },
-  {
-    path: '/mobile-clockin',
-    label: 'モバイル打刻',
-    icon: Clock,
-  },
-  {
     path: '/large-display',
     label: '大型ディスプレイ',
     icon: Monitor,
