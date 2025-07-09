@@ -4,11 +4,14 @@ import { type DepartmentWithEmployees } from '@shared/schema';
 import { DepartmentCard } from '@/components/department-card';
 import { useWebSocket } from '@/hooks/use-websocket';
 import { formatDate } from '@/lib/utils';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, ArrowLeft } from 'lucide-react';
+import { useLocation } from 'wouter';
+import { Button } from '@/components/ui/button';
 
 export default function LargeDisplay() {
   const [autoRefreshCountdown, setAutoRefreshCountdown] = useState(30);
   const [activeTab, setActiveTab] = useState<string>('');
+  const [, setLocation] = useLocation();
   const { lastMessage } = useWebSocket();
 
   const { data: departments, isLoading, refetch } = useQuery<DepartmentWithEmployees[]>({
@@ -67,7 +70,17 @@ export default function LargeDisplay() {
   }
 
   return (
-    <div className="p-6 bg-gray-900 text-white min-h-screen">
+    <div className="p-6 bg-gray-900 text-white min-h-screen relative">
+      {/* Back to Dashboard Button */}
+      <Button
+        onClick={() => setLocation('/')}
+        variant="outline"
+        size="icon"
+        className="absolute top-6 right-6 bg-gray-700 border-gray-600 hover:bg-gray-600 text-white"
+      >
+        <ArrowLeft className="h-5 w-5" />
+      </Button>
+
       <div className="text-center mb-6">
         <h1 className="text-3xl font-bold mb-2">在席状況一覧</h1>
         <div className="text-lg opacity-75">
