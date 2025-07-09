@@ -13,7 +13,7 @@ export function StatusBadge({ status, showIcon = true, size = 'md' }: StatusBadg
   const sizeClasses = {
     sm: 'px-2 py-1 text-xs',
     md: 'px-3 py-1 text-sm',
-    lg: 'px-4 py-2 text-base',
+    lg: 'px-3 py-1 text-sm',
   };
 
   return (
