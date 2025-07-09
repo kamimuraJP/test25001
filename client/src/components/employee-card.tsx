@@ -38,6 +38,14 @@ export function EmployeeCard({ employee, variant = 'default' }: EmployeeCardProp
           )}>
             {employee.positionJa}
           </div>
+          {employee.status?.comment && (
+            <div className={cn(
+              'text-xs mt-1 italic',
+              isLargeDisplay ? 'text-blue-200' : 'text-blue-600'
+            )}>
+              "{employee.status.comment}"
+            </div>
+          )}
         </div>
       </div>
       <div className="flex items-center space-x-2">
