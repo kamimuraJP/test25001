@@ -55,7 +55,7 @@ export default function Dashboard() {
 
   const updateStatusMutation = useMutation({
     mutationFn: async (data: { status: StatusType; comment: string }) => {
-      await apiRequest('POST', '/api/employees/2/status', {
+      await apiRequest('POST', '/api/employees/39/status', {
         status: data.status,
         comment: data.comment,
         location: null,
@@ -100,7 +100,7 @@ export default function Dashboard() {
   // Get current user's status
   const currentUser = departments
     ?.flatMap(dept => dept.employees)
-    .find(emp => emp.id === 2); // Hanako Sato
+    .find(emp => emp.id === 39); // Hanako Sato
 
   const filteredDepartments = departments?.map(dept => ({
     ...dept,
