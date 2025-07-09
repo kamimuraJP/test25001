@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -12,7 +13,6 @@ import LargeDisplay from "@/pages/large-display";
 import AttendanceHistory from "@/pages/attendance-history";
 import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
-import { useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 

@@ -54,7 +54,8 @@ export const employees = pgTable("employees", {
 export const employeeStatus = pgTable("employee_status", {
   id: serial("id").primaryKey(),
   employeeId: integer("employee_id").references(() => employees.id).notNull(),
-  status: text("status").notNull(), // 'on-site', 'remote', 'direct-commute', 'direct-return', 'offline'
+  status: text("status").notNull(), // 'on-site', 'remote', 'absent', 'out', 'off'
+  comment: text("comment"), // Status comment (up to 20 characters)
   lastUpdated: timestamp("last_updated").defaultNow(),
   location: text("location"),
   latitude: text("latitude"),
@@ -166,3 +167,6 @@ export type EmployeeWithStatus = Employee & {
 export type DepartmentWithEmployees = Department & {
   employees: EmployeeWithStatus[];
 };
+
+// Import from constants for consistency
+export type StatusType = 'on-site' | 'absent' | 'out' | 'remote' | 'off';
