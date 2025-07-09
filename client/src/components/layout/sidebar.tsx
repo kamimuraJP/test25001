@@ -43,15 +43,15 @@ export function Sidebar() {
           
           return (
             <Link key={item.path} href={item.path}>
-              <a className={cn(
-                'flex items-center space-x-3 p-3 rounded-lg transition-colors',
+              <div className={cn(
+                'flex items-center space-x-3 p-3 rounded-lg transition-colors cursor-pointer',
                 isActive 
                   ? 'bg-blue-600 text-white' 
                   : 'text-gray-600 hover:bg-gray-100'
               )}>
                 <Icon className="h-5 w-5" />
                 <span>{item.label}</span>
-              </a>
+              </div>
             </Link>
           );
         })}

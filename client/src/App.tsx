@@ -10,18 +10,39 @@ import Dashboard from "@/pages/dashboard";
 import MobileClockIn from "@/pages/mobile-clockin";
 import LargeDisplay from "@/pages/large-display";
 import AttendanceHistory from "@/pages/attendance-history";
+import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/useAuth";
 
 function Router() {
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
+  const { isAuthenticated, isLoading } = useAuth();
 
   const handleQuickClockIn = () => {
     setLocation("/mobile-clockin");
   };
 
+  // Show loading spinner while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="text-gray-600">読み込み中...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login page if not authenticated
+  if (!isAuthenticated) {
+    return <Login />;
+  }
+
+  // Show authenticated routes
   return (
     <Switch>
       <Route path="/">

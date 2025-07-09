@@ -49,13 +49,13 @@ export function MobileNav({ onQuickClockIn }: MobileNavProps) {
             
             return (
               <Link key={item.path} href={item.path}>
-                <a className={cn(
-                  'flex flex-col items-center py-2 transition-colors',
+                <div className={cn(
+                  'flex flex-col items-center py-2 transition-colors cursor-pointer',
                   isActive ? 'text-blue-600' : 'text-gray-500'
                 )}>
                   <Icon className="h-5 w-5 mb-1" />
                   <span className="text-xs">{item.label}</span>
-                </a>
+                </div>
               </Link>
             );
           })}

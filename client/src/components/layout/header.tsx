@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Settings } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { Search, Settings, LogOut } from 'lucide-react';
 
 interface HeaderProps {
   searchQuery: string;
@@ -8,6 +9,12 @@ interface HeaderProps {
 }
 
 export function Header({ searchQuery, onSearchChange }: HeaderProps) {
+  const { user, logout, logoutPending } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -31,13 +38,30 @@ export function Header({ searchQuery, onSearchChange }: HeaderProps) {
               <Settings className="h-5 w-5" />
             </Button>
             <div className="flex items-center space-x-2">
-              <img
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=64&h=64"
-                alt="プロフィール画像"
-                className="w-8 h-8 rounded-full object-cover"
-              />
-              <span className="text-sm font-medium hidden md:inline">田中 太郎</span>
+              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-medium">
+                  {user?.fullName?.charAt(0) || user?.username?.charAt(0) || 'U'}
+                </span>
+              </div>
+              <span className="text-sm font-medium hidden md:inline">
+                {user?.fullName || user?.username}
+                {user?.role === 'admin' && (
+                  <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
+                    管理者
+                  </span>
+                )}
+              </span>
             </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleLogout}
+              disabled={logoutPending}
+              className="text-gray-600 hover:text-red-600"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="ml-2 hidden md:inline">ログアウト</span>
+            </Button>
           </div>
         </div>
       </div>

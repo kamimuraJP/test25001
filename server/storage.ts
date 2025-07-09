@@ -1,12 +1,15 @@
 import {
+  users,
   departments,
   employees,
   employeeStatus,
   attendanceRecords,
+  type User,
   type Department,
   type Employee,
   type EmployeeStatus,
   type AttendanceRecord,
+  type InsertUser,
   type InsertDepartment,
   type InsertEmployee,
   type InsertEmployeeStatus,
@@ -18,6 +21,10 @@ import { db } from "./db";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 
 export interface IStorage {
+  // Auth operations
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  
   // Department operations
   getDepartments(): Promise<Department[]>;
   getDepartmentsWithEmployees(): Promise<DepartmentWithEmployees[]>;
@@ -44,6 +51,17 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  // Auth operations
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    const [newUser] = await db.insert(users).values(user).returning();
+    return newUser;
+  }
+
   // Department operations
   async getDepartments(): Promise<Department[]> {
     return await db.select().from(departments);

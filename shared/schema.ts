@@ -14,6 +14,17 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
+// Users table for authentication
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: varchar("username", { length: 50 }).notNull().unique(),
+  password: varchar("password", { length: 255 }).notNull(),
+  role: varchar("role", { length: 20 }).notNull().default("user"), // 'admin' or 'user'
+  fullName: varchar("full_name", { length: 100 }),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Departments table
 export const departments = pgTable("departments", {
   id: serial("id").primaryKey(),
@@ -102,6 +113,11 @@ export const attendanceRecordsRelations = relations(attendanceRecords, ({ one })
 }));
 
 // Insert schemas
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertDepartmentSchema = createInsertSchema(departments).omit({
   id: true,
   createdAt: true,
@@ -121,16 +137,25 @@ export const insertAttendanceRecordSchema = createInsertSchema(attendanceRecords
   createdAt: true,
 });
 
+// Auth schemas
+export const loginSchema = z.object({
+  username: z.string().min(1, "ユーザー名を入力してください"),
+  password: z.string().min(1, "パスワードを入力してください"),
+});
+
 // Types
+export type User = typeof users.$inferSelect;
 export type Department = typeof departments.$inferSelect;
 export type Employee = typeof employees.$inferSelect;
 export type EmployeeStatus = typeof employeeStatus.$inferSelect;
 export type AttendanceRecord = typeof attendanceRecords.$inferSelect;
 
+export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertDepartment = z.infer<typeof insertDepartmentSchema>;
 export type InsertEmployee = z.infer<typeof insertEmployeeSchema>;
 export type InsertEmployeeStatus = z.infer<typeof insertEmployeeStatusSchema>;
 export type InsertAttendanceRecord = z.infer<typeof insertAttendanceRecordSchema>;
+export type LoginData = z.infer<typeof loginSchema>;
 
 // Extended types for API responses
 export type EmployeeWithStatus = Employee & {

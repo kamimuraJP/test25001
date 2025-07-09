@@ -2,11 +2,37 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { insertEmployeeStatusSchema, insertAttendanceRecordSchema } from "@shared/schema";
+import { insertEmployeeStatusSchema, insertAttendanceRecordSchema, loginSchema } from "@shared/schema";
 import { z } from "zod";
+import session from "express-session";
+import MemoryStore from "memorystore";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
+
+  // Session middleware
+  const MemStore = MemoryStore(session);
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'dev-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    store: new MemStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    }),
+    cookie: {
+      secure: false, // Set to true in production with HTTPS
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+  }));
+
+  // Middleware to check authentication
+  const requireAuth = (req: any, res: any, next: any) => {
+    if (req.session?.user) {
+      return next();
+    }
+    return res.status(401).json({ message: "Unauthorized" });
+  };
 
   // WebSocket server for real-time updates
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
@@ -39,8 +65,183 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }
 
+  // Initialize default users if they don't exist
+  const initializeUsers = async () => {
+    const adminUser = await storage.getUserByUsername('admin');
+    if (!adminUser) {
+      await storage.createUser({
+        username: 'admin',
+        password: 'seb@such@n',
+        role: 'admin',
+        fullName: '管理者',
+        isActive: true
+      });
+    }
+
+    const sampleUser = await storage.getUserByUsername('sample');
+    if (!sampleUser) {
+      await storage.createUser({
+        username: 'sample',
+        password: '4110',
+        role: 'user',
+        fullName: 'サンプルユーザー',
+        isActive: true
+      });
+    }
+  };
+
+  await initializeUsers();
+
+  // Initialize sample data
+  const initializeSampleData = async () => {
+    const departments = await storage.getDepartments();
+    if (departments.length === 0) {
+      // Create departments
+      const salesDept = await storage.createDepartment({
+        name: 'Sales',
+        nameJa: '営業部',
+        icon: 'briefcase'
+      });
+
+      const engineeringDept = await storage.createDepartment({
+        name: 'Engineering',
+        nameJa: 'エンジニア部',
+        icon: 'laptop-code'
+      });
+
+      const hrDept = await storage.createDepartment({
+        name: 'Human Resources',
+        nameJa: '人事部',
+        icon: 'users'
+      });
+
+      // Create employees
+      const employees = [
+        {
+          firstName: 'Taro',
+          lastName: 'Tanaka',
+          firstNameJa: '太郎',
+          lastNameJa: '田中',
+          email: 'tanaka@company.com',
+          position: 'Sales Manager',
+          positionJa: '営業部長',
+          departmentId: salesDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Hanako',
+          lastName: 'Sato',
+          firstNameJa: '花子',
+          lastNameJa: '佐藤',
+          email: 'sato@company.com',
+          position: 'Senior Engineer',
+          positionJa: 'シニアエンジニア',
+          departmentId: engineeringDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Jiro',
+          lastName: 'Suzuki',
+          firstNameJa: '次郎',
+          lastNameJa: '鈴木',
+          email: 'suzuki@company.com',
+          position: 'HR Specialist',
+          positionJa: '人事担当者',
+          departmentId: hrDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Yuki',
+          lastName: 'Yamada',
+          firstNameJa: '雪',
+          lastNameJa: '山田',
+          email: 'yamada@company.com',
+          position: 'Junior Engineer',
+          positionJa: 'ジュニアエンジニア',
+          departmentId: engineeringDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Akiko',
+          lastName: 'Watanabe',
+          firstNameJa: '明子',
+          lastNameJa: '渡辺',
+          email: 'watanabe@company.com',
+          position: 'Sales Representative',
+          positionJa: '営業担当',
+          departmentId: salesDept.id,
+          profileImageUrl: null,
+          isActive: true
+        }
+      ];
+
+      for (const emp of employees) {
+        const employee = await storage.createEmployee(emp);
+        // Set initial status
+        await storage.updateEmployeeStatus({
+          employeeId: employee.id,
+          status: Math.random() > 0.5 ? 'on-site' : 'remote',
+          location: '東京オフィス',
+          latitude: '35.6762',
+          longitude: '139.6503'
+        });
+      }
+    }
+  };
+
+  await initializeSampleData();
+
+  // Auth API
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { username, password } = loginSchema.parse(req.body);
+      
+      const user = await storage.getUserByUsername(username);
+      if (!user || user.password !== password || !user.isActive) {
+        return res.status(401).json({ 
+          message: "ユーザー名またはパスワードが正しくありません" 
+        });
+      }
+
+      // Store user in session (excluding password)
+      const { password: _, ...userWithoutPassword } = user;
+      (req.session as any).user = userWithoutPassword;
+
+      res.json({ 
+        message: "ログインに成功しました",
+        user: userWithoutPassword
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "入力データが正しくありません", 
+          errors: error.errors 
+        });
+      }
+      console.error("Login error:", error);
+      res.status(500).json({ message: "ログインに失敗しました" });
+    }
+  });
+
+  app.post("/api/auth/logout", (req, res) => {
+    req.session?.destroy((err: any) => {
+      if (err) {
+        return res.status(500).json({ message: "ログアウトに失敗しました" });
+      }
+      res.json({ message: "ログアウトしました" });
+    });
+  });
+
+  app.get("/api/auth/me", requireAuth, (req, res) => {
+    res.json((req.session as any).user);
+  });
+
   // Departments API
-  app.get("/api/departments", async (req, res) => {
+  app.get("/api/departments", requireAuth, async (req, res) => {
     try {
       const departments = await storage.getDepartmentsWithEmployees();
       res.json(departments);

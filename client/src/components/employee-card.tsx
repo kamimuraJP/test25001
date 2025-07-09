@@ -1,6 +1,6 @@
 import { type EmployeeWithStatus } from '@shared/schema';
 import { StatusBadge } from './status-badge';
-import { formatTime } from '@/lib/utils';
+import { formatTime, cn } from '@/lib/utils';
 import { type StatusType } from '@/lib/constants';
 
 interface EmployeeCardProps {
