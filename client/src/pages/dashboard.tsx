@@ -5,7 +5,7 @@ import { DepartmentCard } from '@/components/department-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { StatusBadge } from '@/components/status-badge';
@@ -27,9 +27,10 @@ import {
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
-
   const [selectedStatus, setSelectedStatus] = useState<StatusType>('on-site');
   const [statusComment, setStatusComment] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<StatusType | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { lastMessage } = useWebSocket();
@@ -70,6 +71,8 @@ export default function Dashboard() {
       });
       queryClient.invalidateQueries({ queryKey: ['/api/departments'] });
       setStatusComment('');
+      setIsDialogOpen(false);
+      setPendingStatus(null);
     },
     onError: () => {
       toast({
@@ -82,6 +85,12 @@ export default function Dashboard() {
 
 
 
+  const handleStatusClick = (status: StatusType) => {
+    setPendingStatus(status);
+    setSelectedStatus(status);
+    setIsDialogOpen(true);
+  };
+
   const handleStatusUpdate = () => {
     if (statusComment.length > 20) {
       toast({
@@ -91,8 +100,10 @@ export default function Dashboard() {
       });
       return;
     }
+    if (!pendingStatus) return;
+    
     updateStatusMutation.mutate({
-      status: selectedStatus,
+      status: pendingStatus,
       comment: statusComment,
     });
   };
@@ -130,80 +141,52 @@ export default function Dashboard() {
       {/* Quick Actions */}
       <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">自分のステータス</h2>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <Button
-            variant={selectedStatus === 'on-site' ? 'default' : 'outline'}
+            variant="outline"
             size="sm"
             className="flex items-center gap-2"
-            onClick={() => setSelectedStatus('on-site')}
+            onClick={() => handleStatusClick('on-site')}
           >
             <Building className="h-4 w-4" />
             在席
           </Button>
           <Button
-            variant={selectedStatus === 'absent' ? 'default' : 'outline'}
+            variant="outline"
             size="sm"
             className="flex items-center gap-2"
-            onClick={() => setSelectedStatus('absent')}
+            onClick={() => handleStatusClick('absent')}
           >
             <UserX className="h-4 w-4" />
             離席
           </Button>
           <Button
-            variant={selectedStatus === 'out' ? 'default' : 'outline'}
+            variant="outline"
             size="sm"
             className="flex items-center gap-2"
-            onClick={() => setSelectedStatus('out')}
+            onClick={() => handleStatusClick('out')}
           >
             <MapPin className="h-4 w-4" />
             外出中
           </Button>
           <Button
-            variant={selectedStatus === 'remote' ? 'default' : 'outline'}
+            variant="outline"
             size="sm"
             className="flex items-center gap-2"
-            onClick={() => setSelectedStatus('remote')}
+            onClick={() => handleStatusClick('remote')}
           >
             <Home className="h-4 w-4" />
             テレワーク
           </Button>
           <Button
-            variant={selectedStatus === 'off' ? 'default' : 'outline'}
+            variant="outline"
             size="sm"
             className="flex items-center gap-2"
-            onClick={() => setSelectedStatus('off')}
+            onClick={() => handleStatusClick('off')}
           >
             <CalendarX className="h-4 w-4" />
             休み
           </Button>
-        </div>
-        
-        {/* Status Comment Input */}
-        <div className="max-w-md">
-          <label className="text-sm font-medium text-gray-700 mb-2 block">
-            ステータスコメント (20文字以内)
-          </label>
-          <div className="flex gap-2">
-            <Textarea
-              value={statusComment}
-              onChange={(e) => setStatusComment(e.target.value)}
-              placeholder="状況や連絡事項を入力..."
-              maxLength={20}
-              className="resize-none flex-1"
-              rows={1}
-            />
-            <Button 
-              size="sm"
-              onClick={handleStatusUpdate}
-              disabled={updateStatusMutation.isPending}
-              className="px-4"
-            >
-              {updateStatusMutation.isPending ? '更新中...' : '更新'}
-            </Button>
-          </div>
-          <div className="text-xs text-gray-500 mt-1">
-            {statusComment.length}/20文字
-          </div>
         </div>
       </div>
 
@@ -228,8 +211,52 @@ export default function Dashboard() {
         ))}
       </div>
 
-
-
+      {/* Status Comment Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              ステータス変更: {pendingStatus && STATUS_TYPES[pendingStatus]?.label}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                コメント (20文字以内、任意)
+              </label>
+              <Textarea
+                value={statusComment}
+                onChange={(e) => setStatusComment(e.target.value)}
+                placeholder="状況や連絡事項を入力..."
+                maxLength={20}
+                className="resize-none"
+                rows={3}
+              />
+              <div className="text-xs text-gray-500 mt-1">
+                {statusComment.length}/20文字
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDialogOpen(false);
+                setStatusComment('');
+                setPendingStatus(null);
+              }}
+            >
+              キャンセル
+            </Button>
+            <Button
+              onClick={handleStatusUpdate}
+              disabled={updateStatusMutation.isPending}
+            >
+              {updateStatusMutation.isPending ? '更新中...' : 'ステータス更新'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );
