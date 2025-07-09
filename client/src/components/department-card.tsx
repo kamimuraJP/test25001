@@ -15,15 +15,15 @@ export function DepartmentCard({ department, variant = 'default' }: DepartmentCa
   return (
     <div className={cn(
       'rounded-lg shadow-sm border overflow-hidden',
-      isLargeDisplay ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+      isLargeDisplay ? 'bg-white border-gray-200' : 'bg-white border-gray-200'
     )}>
       <div className={cn(
         'p-4 border-b',
-        isLargeDisplay ? 'border-gray-600' : 'border-gray-200'
+        isLargeDisplay ? 'border-gray-200' : 'border-gray-200'
       )}>
         <h2 className={cn(
           'font-semibold flex items-center',
-          isLargeDisplay ? 'text-2xl text-white' : 'text-lg text-gray-900'
+          isLargeDisplay ? 'text-2xl text-gray-900' : 'text-lg text-gray-900'
         )}>
           <i className={cn(
             'fas mr-2',
@@ -32,7 +32,7 @@ export function DepartmentCard({ department, variant = 'default' }: DepartmentCa
           )} />
           {department.nameJa}
           {isLargeDisplay && (
-            <span className="ml-2 text-gray-300">({totalCount}/{totalCount})</span>
+            <span className="ml-2 text-gray-600">({totalCount}/{totalCount})</span>
           )}
         </h2>
         {!isLargeDisplay && (
@@ -41,7 +41,10 @@ export function DepartmentCard({ department, variant = 'default' }: DepartmentCa
           </p>
         )}
       </div>
-      <div className="p-4 space-y-3">
+      <div className={cn(
+        'p-4',
+        isLargeDisplay ? 'grid grid-cols-3 gap-4' : 'space-y-3'
+      )}>
         {department.employees.map((employee) => (
           <EmployeeCard 
             key={employee.id} 
