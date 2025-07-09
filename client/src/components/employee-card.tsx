@@ -48,20 +48,31 @@ export function EmployeeCard({ employee, variant = 'default' }: EmployeeCardProp
           )}
         </div>
       </div>
-      <div className="flex items-center space-x-2">
-        <StatusBadge 
-          status={(employee.status?.status as StatusType) || 'offline'} 
-          size={isLargeDisplay ? 'lg' : 'md'}
-        />
-        {employee.status?.lastUpdated && (
-          <span className={cn(
-            'text-xs',
-            isLargeDisplay ? 'text-lg text-gray-600' : 'text-gray-500'
-          )}>
-            {formatTime(employee.status.lastUpdated)}
-          </span>
-        )}
-      </div>
+      {isLargeDisplay ? (
+        <div className="flex flex-col items-end space-y-1">
+          <StatusBadge 
+            status={(employee.status?.status as StatusType) || 'offline'} 
+            size="lg"
+          />
+          {employee.status?.lastUpdated && (
+            <span className="text-sm text-gray-600">
+              {formatTime(employee.status.lastUpdated)}
+            </span>
+          )}
+        </div>
+      ) : (
+        <div className="flex items-center space-x-2">
+          <StatusBadge 
+            status={(employee.status?.status as StatusType) || 'offline'} 
+            size="md"
+          />
+          {employee.status?.lastUpdated && (
+            <span className="text-xs text-gray-500">
+              {formatTime(employee.status.lastUpdated)}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
