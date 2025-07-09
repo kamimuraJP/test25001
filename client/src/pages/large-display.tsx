@@ -88,7 +88,7 @@ export default function LargeDisplay() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto">
+      <div className="w-full">
         {/* Tab Navigation */}
         <div className="grid grid-cols-5 bg-gray-100 rounded-lg mb-6 border border-gray-200">
           {departments.map((department) => (
@@ -112,7 +112,7 @@ export default function LargeDisplay() {
         {/* Department Content */}
         {departments.map((department) => (
           activeTab === department.id.toString() && (
-            <div key={department.id} className="flex justify-center">
+            <div key={department.id} className="w-full">
               <DepartmentCard 
                 department={department} 
                 variant="large-display"

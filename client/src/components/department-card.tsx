@@ -15,7 +15,7 @@ export function DepartmentCard({ department, variant = 'default' }: DepartmentCa
   return (
     <div className={cn(
       'rounded-lg shadow-sm border overflow-hidden',
-      isLargeDisplay ? 'bg-white border-gray-200' : 'bg-white border-gray-200'
+      isLargeDisplay ? 'bg-white border-gray-200 w-full' : 'bg-white border-gray-200'
     )}>
       <div className={cn(
         'p-4 border-b',
@@ -43,7 +43,7 @@ export function DepartmentCard({ department, variant = 'default' }: DepartmentCa
       </div>
       <div className={cn(
         'p-4',
-        isLargeDisplay ? 'grid grid-cols-3 gap-4' : 'space-y-3'
+        isLargeDisplay ? 'grid grid-cols-3 gap-4 w-full' : 'space-y-3'
       )}>
         {department.employees.map((employee) => (
           <EmployeeCard 
