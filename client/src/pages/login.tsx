@@ -47,7 +47,7 @@ export default function Login() {
               在席管理システム
             </CardTitle>
             <CardDescription className="text-gray-600">
-              ログインしてシステムにアクセス
+              社員の在席状況管理
             </CardDescription>
           </div>
         </CardHeader>

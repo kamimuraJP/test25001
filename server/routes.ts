@@ -4,39 +4,30 @@ import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { insertEmployeeStatusSchema, insertAttendanceRecordSchema, loginSchema } from "@shared/schema";
 import { z } from "zod";
-import session from "express-session";
-import MemoryStore from "memorystore";
+// Simple in-memory token store for authentication
+const activeTokens = new Map<string, any>();
+
+function generateToken(): string {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
 
-  // Session middleware
-  const MemStore = MemoryStore(session);
-  app.use(session({
-    secret: process.env.SESSION_SECRET || 'dev-secret-key',
-    resave: false,
-    saveUninitialized: true, // Changed to true to ensure session creation
-    store: new MemStore({
-      checkPeriod: 86400000 // prune expired entries every 24h
-    }),
-    cookie: {
-      secure: false, // Set to true in production with HTTPS
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: 'lax' // Lax for development
-    },
-    name: 'connect.sid' // Explicit session cookie name
-  }));
-
   // Middleware to check authentication
   const requireAuth = (req: any, res: any, next: any) => {
-    console.log('Auth check - Session ID:', req.session?.id);
-    console.log('Auth check - Session user:', req.session?.user?.username);
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
     
-    if (req.session?.user) {
+    console.log('Auth check - Token:', token?.substring(0, 10) + '...');
+    
+    if (token && activeTokens.has(token)) {
+      req.user = activeTokens.get(token);
+      console.log('Auth success - User:', req.user.username);
       return next();
     }
-    console.log('Auth failed - No session user found');
+    
+    console.log('Auth failed - Invalid or missing token');
     return res.status(401).json({ message: "Unauthorized" });
   };
 
@@ -204,7 +195,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth API
   app.post("/api/auth/login", async (req, res) => {
     try {
-      console.log('Login attempt - Session ID before:', req.session?.id);
       const { username, password } = loginSchema.parse(req.body);
       
       const user = await storage.getUserByUsername(username);
@@ -214,27 +204,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Store user in session (excluding password)
+      // Generate token and store user (excluding password)
       const { password: _, ...userWithoutPassword } = user;
-      (req.session as any).user = userWithoutPassword;
+      const token = generateToken();
+      activeTokens.set(token, userWithoutPassword);
       
-      console.log('Login - Session ID after user set:', req.session?.id);
-      console.log('Login - User set in session:', userWithoutPassword.username);
+      console.log('Login successful for user:', userWithoutPassword.username);
+      console.log('Generated token:', token.substring(0, 10) + '...');
       
-      // Save session explicitly and respond
-      req.session.save((err: any) => {
-        if (err) {
-          console.error('Session save error:', err);
-          return res.status(500).json({ message: "セッション保存に失敗しました" });
-        }
-        
-        console.log('Session saved successfully for user:', userWithoutPassword.username);
-        console.log('Final session ID:', req.session?.id);
-        
-        res.json({ 
-          message: "ログインに成功しました",
-          user: userWithoutPassword
-        });
+      res.json({ 
+        message: "ログインに成功しました",
+        user: userWithoutPassword,
+        token: token
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -248,17 +229,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/auth/logout", (req, res) => {
-    req.session?.destroy((err: any) => {
-      if (err) {
-        return res.status(500).json({ message: "ログアウトに失敗しました" });
-      }
-      res.json({ message: "ログアウトしました" });
-    });
+  app.post("/api/auth/logout", requireAuth, (req, res) => {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    
+    if (token && activeTokens.has(token)) {
+      activeTokens.delete(token);
+      console.log('Token deleted for logout');
+    }
+    
+    res.json({ message: "ログアウトしました" });
   });
 
-  app.get("/api/auth/me", requireAuth, (req, res) => {
-    res.json((req.session as any).user);
+  app.get("/api/auth/me", requireAuth, (req: any, res) => {
+    res.json(req.user);
   });
 
   // Departments API
