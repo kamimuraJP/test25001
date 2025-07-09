@@ -5,6 +5,7 @@ export const STATUS_TYPES = {
     icon: 'building',
     color: 'bg-green-500 text-white',
     bgColor: 'bg-green-500',
+    chartColor: '#22c55e',
   },
   'absent': {
     label: '離席',
@@ -12,6 +13,7 @@ export const STATUS_TYPES = {
     icon: 'user-x',
     color: 'bg-yellow-500 text-white',
     bgColor: 'bg-yellow-500',
+    chartColor: '#eab308',
   },
   'out': {
     label: '外出中',
@@ -19,6 +21,7 @@ export const STATUS_TYPES = {
     icon: 'map-pin',
     color: 'bg-orange-500 text-white',
     bgColor: 'bg-orange-500',
+    chartColor: '#f97316',
   },
   'remote': {
     label: 'テレワーク',
@@ -26,6 +29,7 @@ export const STATUS_TYPES = {
     icon: 'home',
     color: 'bg-blue-500 text-white',
     bgColor: 'bg-blue-500',
+    chartColor: '#3b82f6',
   },
   'off': {
     label: '休み',
@@ -33,6 +37,7 @@ export const STATUS_TYPES = {
     icon: 'calendar-x',
     color: 'bg-gray-500 text-white',
     bgColor: 'bg-gray-500',
+    chartColor: '#6b7280',
   },
 } as const;
 

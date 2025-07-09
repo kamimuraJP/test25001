@@ -24,6 +24,7 @@ import {
   Home,
   CalendarX
 } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -122,6 +123,24 @@ export default function Dashboard() {
     ),
   })).filter(dept => dept.employees.length > 0);
 
+  // Calculate status statistics
+  const statusStats = departments?.reduce((stats, dept) => {
+    dept.employees.forEach(emp => {
+      const status = emp.status?.status || 'off';
+      stats[status] = (stats[status] || 0) + 1;
+    });
+    return stats;
+  }, {} as Record<string, number>);
+
+  // Prepare chart data
+  const chartData = Object.entries(statusStats || {}).map(([status, count]) => ({
+    name: STATUS_TYPES[status as StatusType]?.label || status,
+    value: count,
+    color: STATUS_TYPES[status as StatusType]?.chartColor || '#8884d8',
+  }));
+
+  const totalEmployees = chartData.reduce((sum, item) => sum + item.value, 0);
+
   if (isLoading) {
     return (
       <div className="p-6">
@@ -187,6 +206,57 @@ export default function Dashboard() {
             <CalendarX className="h-4 w-4" />
             休み
           </Button>
+        </div>
+      </div>
+
+      {/* Status Statistics */}
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">ステータス統計</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => [`${value}人`, '人数']} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="space-y-3">
+            <div className="text-sm font-medium text-gray-700 mb-2">詳細統計</div>
+            {chartData.map((item, index) => (
+              <div key={index} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div 
+                    className="w-4 h-4 rounded-full" 
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <span className="text-sm text-gray-700">{item.name}</span>
+                </div>
+                <div className="text-sm font-medium text-gray-900">
+                  {item.value}人 ({totalEmployees > 0 ? ((item.value / totalEmployees) * 100).toFixed(1) : 0}%)
+                </div>
+              </div>
+            ))}
+            <div className="border-t pt-2 mt-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700">合計</span>
+                <span className="text-sm font-medium text-gray-900">{totalEmployees}人</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
