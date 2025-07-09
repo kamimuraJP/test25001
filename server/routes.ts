@@ -233,6 +233,204 @@ export async function registerRoutes(app: Express): Promise<Server> {
           departmentId: financeDept.id,
           profileImageUrl: null,
           isActive: true
+        },
+        // Additional Sales Department employees
+        {
+          firstName: 'Kenji',
+          lastName: 'Matsumoto',
+          firstNameJa: '松本',
+          lastNameJa: '健二',
+          email: 'matsumoto@company.com',
+          position: 'Sales Representative',
+          positionJa: '営業担当',
+          departmentId: salesDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Yoko',
+          lastName: 'Hayashi',
+          firstNameJa: '林',
+          lastNameJa: '洋子',
+          email: 'hayashi@company.com',
+          position: 'Sales Representative',
+          positionJa: '営業担当',
+          departmentId: salesDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Shinji',
+          lastName: 'Kato',
+          firstNameJa: '加藤',
+          lastNameJa: '真司',
+          email: 'kato@company.com',
+          position: 'Senior Sales Representative',
+          positionJa: 'シニア営業担当',
+          departmentId: salesDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        // Additional Engineering Department employees
+        {
+          firstName: 'Masato',
+          lastName: 'Ishida',
+          firstNameJa: '石田',
+          lastNameJa: '正人',
+          email: 'ishida@company.com',
+          position: 'Software Engineer',
+          positionJa: 'ソフトウェアエンジニア',
+          departmentId: engineeringDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Naomi',
+          lastName: 'Mori',
+          firstNameJa: '森',
+          lastNameJa: '直美',
+          email: 'mori@company.com',
+          position: 'Frontend Engineer',
+          positionJa: 'フロントエンドエンジニア',
+          departmentId: engineeringDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Takeshi',
+          lastName: 'Ueda',
+          firstNameJa: '上田',
+          lastNameJa: '武志',
+          email: 'ueda@company.com',
+          position: 'Backend Engineer',
+          positionJa: 'バックエンドエンジニア',
+          departmentId: engineeringDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        // Additional HR Department employees
+        {
+          firstName: 'Yukiko',
+          lastName: 'Kimura',
+          firstNameJa: '木村',
+          lastNameJa: '由紀子',
+          email: 'kimura@company.com',
+          position: 'HR Specialist',
+          positionJa: '人事担当者',
+          departmentId: hrDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Hiroshi',
+          lastName: 'Ogawa',
+          firstNameJa: '小川',
+          lastNameJa: '寛',
+          email: 'ogawa@company.com',
+          position: 'HR Manager',
+          positionJa: '人事部長',
+          departmentId: hrDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Michiko',
+          lastName: 'Saito',
+          firstNameJa: '斉藤',
+          lastNameJa: '美智子',
+          email: 'saito@company.com',
+          position: 'Recruiter',
+          positionJa: '採用担当',
+          departmentId: hrDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        // Additional Marketing Department employees
+        {
+          firstName: 'Kazuo',
+          lastName: 'Nishida',
+          firstNameJa: '西田',
+          lastNameJa: '和夫',
+          email: 'nishida@company.com',
+          position: 'Marketing Specialist',
+          positionJa: 'マーケティング担当',
+          departmentId: marketingDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Ryoko',
+          lastName: 'Yamamoto',
+          firstNameJa: '山本',
+          lastNameJa: '涼子',
+          email: 'yamamoto@company.com',
+          position: 'Content Marketing Specialist',
+          positionJa: 'コンテンツマーケティング担当',
+          departmentId: marketingDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Daisuke',
+          lastName: 'Fujita',
+          firstNameJa: '藤田',
+          lastNameJa: '大輔',
+          email: 'fujita@company.com',
+          position: 'Digital Marketing Specialist',
+          positionJa: 'デジタルマーケティング担当',
+          departmentId: marketingDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        // Additional Finance Department employees
+        {
+          firstName: 'Akira',
+          lastName: 'Hashimoto',
+          firstNameJa: '橋本',
+          lastNameJa: '明',
+          email: 'hashimoto@company.com',
+          position: 'Financial Analyst',
+          positionJa: '財務アナリスト',
+          departmentId: financeDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Kumiko',
+          lastName: 'Okamoto',
+          firstNameJa: '岡本',
+          lastNameJa: '久美子',
+          email: 'okamoto@company.com',
+          position: 'Accountant',
+          positionJa: '経理担当',
+          departmentId: financeDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Tetsuya',
+          lastName: 'Morita',
+          firstNameJa: '森田',
+          lastNameJa: '哲也',
+          email: 'morita@company.com',
+          position: 'Budget Analyst',
+          positionJa: '予算分析担当',
+          departmentId: financeDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        // Additional HR Department employee (5th member)
+        {
+          firstName: 'Tomoko',
+          lastName: 'Suzuki',
+          firstNameJa: '鈴木',
+          lastNameJa: '知子',
+          email: 'suzuki.tomoko@company.com',
+          position: 'HR Assistant',
+          positionJa: '人事アシスタント',
+          departmentId: hrDept.id,
+          profileImageUrl: null,
+          isActive: true
         }
       ];
 
