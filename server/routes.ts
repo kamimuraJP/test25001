@@ -15,7 +15,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(session({
     secret: process.env.SESSION_SECRET || 'dev-secret-key',
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true, // Changed to true to ensure session creation
     store: new MemStore({
       checkPeriod: 86400000 // prune expired entries every 24h
     }),
@@ -24,7 +24,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
       sameSite: 'lax' // Add sameSite for better compatibility
-    }
+    },
+    name: 'connect.sid' // Explicit session cookie name
   }));
 
   // Middleware to check authentication
@@ -203,6 +204,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth API
   app.post("/api/auth/login", async (req, res) => {
     try {
+      console.log('Login attempt - Session ID before:', req.session?.id);
       const { username, password } = loginSchema.parse(req.body);
       
       const user = await storage.getUserByUsername(username);
@@ -216,14 +218,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { password: _, ...userWithoutPassword } = user;
       (req.session as any).user = userWithoutPassword;
       
-      // Save session explicitly
+      console.log('Login - Session ID after user set:', req.session?.id);
+      console.log('Login - User set in session:', userWithoutPassword.username);
+      
+      // Save session explicitly and respond
       req.session.save((err: any) => {
         if (err) {
           console.error('Session save error:', err);
           return res.status(500).json({ message: "セッション保存に失敗しました" });
         }
         
-        console.log('Session saved for user:', userWithoutPassword.username);
+        console.log('Session saved successfully for user:', userWithoutPassword.username);
+        console.log('Final session ID:', req.session?.id);
+        
         res.json({ 
           message: "ログインに成功しました",
           user: userWithoutPassword
