@@ -14,12 +14,9 @@ import { useToast } from '@/hooks/use-toast';
 import { WS_MESSAGE_TYPES, STATUS_TYPES } from '@/lib/constants';
 import { apiRequest } from '@/lib/queryClient';
 import { 
-  LogIn, 
-  LogOut, 
   Edit, 
   TrendingUp,
   Search,
-  Clock,
   MessageSquare
 } from 'lucide-react';
 
@@ -45,55 +42,11 @@ export default function Dashboard() {
           title: "ステータス更新",
           description: "社員のステータスが更新されました",
         });
-      } else if (lastMessage.type === WS_MESSAGE_TYPES.ATTENDANCE_UPDATE) {
-        queryClient.invalidateQueries({ queryKey: ['/api/departments'] });
-        toast({
-          title: "勤怠更新",
-          description: "勤怠記録が更新されました",
-        });
       }
     }
   }, [lastMessage, queryClient, toast]);
 
-  const clockInMutation = useMutation({
-    mutationFn: async (data: any) => {
-      await apiRequest('POST', '/api/attendance/clock-in', data);
-    },
-    onSuccess: () => {
-      toast({
-        title: "出社打刻完了",
-        description: "出社時刻が記録されました",
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/departments'] });
-    },
-    onError: (error) => {
-      toast({
-        title: "エラー",
-        description: "出社打刻に失敗しました",
-        variant: "destructive",
-      });
-    },
-  });
 
-  const clockOutMutation = useMutation({
-    mutationFn: async (data: any) => {
-      await apiRequest('POST', '/api/attendance/clock-out', data);
-    },
-    onSuccess: () => {
-      toast({
-        title: "退社打刻完了",
-        description: "退社時刻が記録されました",
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/departments'] });
-    },
-    onError: (error) => {
-      toast({
-        title: "エラー",
-        description: "退社打刻に失敗しました",
-        variant: "destructive",
-      });
-    },
-  });
 
   const updateStatusMutation = useMutation({
     mutationFn: async (data: { status: StatusType; comment: string }) => {
@@ -123,24 +76,7 @@ export default function Dashboard() {
     },
   });
 
-  const handleClockIn = () => {
-    clockInMutation.mutate({
-      employeeId: 2, // Current user (Hanako Sato)
-      status: 'on-site',
-      clockInLocation: null,
-      clockInLatitude: null,
-      clockInLongitude: null,
-    });
-  };
 
-  const handleClockOut = () => {
-    clockOutMutation.mutate({
-      employeeId: 2, // Current user (Hanako Sato)
-      clockOutLocation: null,
-      clockOutLatitude: null,
-      clockOutLongitude: null,
-    });
-  };
 
   const handleStatusUpdate = () => {
     if (statusComment.length > 20) {
@@ -213,26 +149,7 @@ export default function Dashboard() {
         <Card>
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">クイックアクション</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Button
-                variant="outline"
-                className="flex flex-col items-center p-4 h-auto space-y-2"
-                onClick={handleClockIn}
-                disabled={clockInMutation.isPending}
-              >
-                <LogIn className="h-6 w-6 text-blue-600" />
-                <span className="text-sm">{clockInMutation.isPending ? '処理中...' : '出社打刻'}</span>
-              </Button>
-              
-              <Button
-                variant="outline"
-                className="flex flex-col items-center p-4 h-auto space-y-2"
-                onClick={handleClockOut}
-                disabled={clockOutMutation.isPending}
-              >
-                <LogOut className="h-6 w-6 text-red-600" />
-                <span className="text-sm">{clockOutMutation.isPending ? '処理中...' : '退社打刻'}</span>
-              </Button>
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
 
               <Dialog open={isStatusDialogOpen} onOpenChange={setIsStatusDialogOpen}>
                 <DialogTrigger asChild>
@@ -327,9 +244,9 @@ export default function Dashboard() {
                 className="flex flex-col items-center p-4 h-auto space-y-2"
                 asChild
               >
-                <a href="/attendance-history">
+                <a href="/attendance">
                   <TrendingUp className="h-6 w-6 text-purple-600" />
-                  <span className="text-sm">勤怠履歴</span>
+                  <span className="text-sm">ステータス履歴</span>
                 </a>
               </Button>
             </div>
@@ -337,38 +254,7 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Mobile Clock-in Section */}
-      <div className="mt-8 md:hidden">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Clock className="h-5 w-5" />
-              <span>モバイル打刻</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <Button
-                onClick={handleClockIn}
-                disabled={clockInMutation.isPending}
-                className="flex flex-col items-center p-6 h-auto space-y-2 bg-blue-600 hover:bg-blue-700"
-              >
-                <LogIn className="h-8 w-8" />
-                <span>{clockInMutation.isPending ? '処理中...' : '出社打刻'}</span>
-              </Button>
-              
-              <Button
-                onClick={handleClockOut}
-                disabled={clockOutMutation.isPending}
-                className="flex flex-col items-center p-6 h-auto space-y-2 bg-red-600 hover:bg-red-700"
-              >
-                <LogOut className="h-8 w-8" />
-                <span>{clockOutMutation.isPending ? '処理中...' : '退社打刻'}</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+
     </div>
   );
 }

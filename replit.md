@@ -1,8 +1,8 @@
-# Employee Attendance Management System
+# Employee Status Management System
 
 ## Overview
 
-This is a modern employee attendance management system built with React/TypeScript frontend and Express.js backend. The application is designed for Japanese businesses and features real-time presence tracking, mobile clock-in functionality, and a large display view for office monitoring.
+This is a modern employee status management system built with React/TypeScript frontend and Express.js backend. The application is designed for Japanese businesses and features real-time presence status tracking, mobile status update functionality, and a large display view for office monitoring. The system focuses purely on status management without attendance tracking.
 
 ## User Preferences
 
@@ -35,8 +35,7 @@ Preferred communication style: Simple, everyday language.
 ### Database Schema
 - **Departments**: Company departments with Japanese names and icons
 - **Employees**: Staff information with both English and Japanese names
-- **Employee Status**: Real-time presence status (on-site, remote, direct-commute, etc.)
-- **Attendance Records**: Clock-in/out times with geolocation data
+- **Employee Status**: Real-time presence status (在席, 離席, 外出中, テレワーク, 休み) with 20-character comment field
 - **Sessions**: Authentication session storage
 
 ### Real-time Features
@@ -46,9 +45,9 @@ Preferred communication style: Simple, everyday language.
 
 ### User Interface Views
 - **Dashboard**: Main overview of all departments and employees
-- **Mobile Clock-in**: Dedicated mobile interface for attendance tracking
+- **Mobile Status Update**: Dedicated mobile interface for status updates with comment support
 - **Large Display**: Full-screen view optimized for office monitors
-- **Attendance History**: Historical attendance data with CSV export
+- **Status History**: Current status overview for all employees
 
 ## Data Flow
 

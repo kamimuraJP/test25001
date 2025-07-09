@@ -22,7 +22,7 @@ function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
   const handleQuickClockIn = () => {
-    setLocation("/mobile-clockin");
+    setLocation("/status-update");
   };
 
   // Show loading spinner while checking authentication
@@ -57,7 +57,7 @@ function Router() {
           <MobileNav onQuickClockIn={handleQuickClockIn} />
         </div>
       </Route>
-      <Route path="/mobile-clockin">
+      <Route path="/status-update">
         <div className="flex flex-col min-h-screen">
           <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
           <div className="flex flex-1">

@@ -16,18 +16,18 @@ const navItems = [
     icon: Home,
   },
   {
-    path: '/mobile-clockin',
-    label: '打刻',
+    path: '/status-update',
+    label: 'ステータス',
     icon: Clock,
   },
   {
     path: '/attendance',
-    label: '勤怠',
+    label: '履歴',
     icon: BarChart3,
   },
   {
-    path: '/location',
-    label: '位置',
+    path: '/large-display',
+    label: '大画面',
     icon: MapPin,
   },
 ];

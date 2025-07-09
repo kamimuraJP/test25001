@@ -62,32 +62,14 @@ export const employeeStatus = pgTable("employee_status", {
   longitude: text("longitude"),
 });
 
-// Attendance records table
-export const attendanceRecords = pgTable("attendance_records", {
-  id: serial("id").primaryKey(),
-  employeeId: integer("employee_id").references(() => employees.id).notNull(),
-  clockInTime: timestamp("clock_in_time"),
-  clockOutTime: timestamp("clock_out_time"),
-  clockInLocation: text("clock_in_location"),
-  clockOutLocation: text("clock_out_location"),
-  clockInLatitude: text("clock_in_latitude"),
-  clockInLongitude: text("clock_in_longitude"),
-  clockOutLatitude: text("clock_out_latitude"),
-  clockOutLongitude: text("clock_out_longitude"),
-  status: text("status").notNull(), // 'on-site', 'remote', 'direct-commute', 'direct-return'
-  workHours: integer("work_hours"), // in minutes
-  isModified: boolean("is_modified").default(false),
-  modificationReason: text("modification_reason"),
-  date: timestamp("date").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+
 
 // Relations
 export const departmentsRelations = relations(departments, ({ many }) => ({
   employees: many(employees),
 }));
 
-export const employeesRelations = relations(employees, ({ one, many }) => ({
+export const employeesRelations = relations(employees, ({ one }) => ({
   department: one(departments, {
     fields: [employees.departmentId],
     references: [departments.id],
@@ -96,7 +78,6 @@ export const employeesRelations = relations(employees, ({ one, many }) => ({
     fields: [employees.id],
     references: [employeeStatus.employeeId],
   }),
-  attendanceRecords: many(attendanceRecords),
 }));
 
 export const employeeStatusRelations = relations(employeeStatus, ({ one }) => ({
@@ -106,12 +87,7 @@ export const employeeStatusRelations = relations(employeeStatus, ({ one }) => ({
   }),
 }));
 
-export const attendanceRecordsRelations = relations(attendanceRecords, ({ one }) => ({
-  employee: one(employees, {
-    fields: [attendanceRecords.employeeId],
-    references: [employees.id],
-  }),
-}));
+
 
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
@@ -133,10 +109,7 @@ export const insertEmployeeStatusSchema = createInsertSchema(employeeStatus).omi
   id: true,
 });
 
-export const insertAttendanceRecordSchema = createInsertSchema(attendanceRecords).omit({
-  id: true,
-  createdAt: true,
-});
+
 
 // Auth schemas
 export const loginSchema = z.object({
@@ -149,13 +122,13 @@ export type User = typeof users.$inferSelect;
 export type Department = typeof departments.$inferSelect;
 export type Employee = typeof employees.$inferSelect;
 export type EmployeeStatus = typeof employeeStatus.$inferSelect;
-export type AttendanceRecord = typeof attendanceRecords.$inferSelect;
+
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertDepartment = z.infer<typeof insertDepartmentSchema>;
 export type InsertEmployee = z.infer<typeof insertEmployeeSchema>;
 export type InsertEmployeeStatus = z.infer<typeof insertEmployeeStatusSchema>;
-export type InsertAttendanceRecord = z.infer<typeof insertAttendanceRecordSchema>;
+
 export type LoginData = z.infer<typeof loginSchema>;
 
 // Extended types for API responses

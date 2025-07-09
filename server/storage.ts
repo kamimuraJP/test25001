@@ -3,17 +3,14 @@ import {
   departments,
   employees,
   employeeStatus,
-  attendanceRecords,
   type User,
   type Department,
   type Employee,
   type EmployeeStatus,
-  type AttendanceRecord,
   type InsertUser,
   type InsertDepartment,
   type InsertEmployee,
   type InsertEmployeeStatus,
-  type InsertAttendanceRecord,
   type EmployeeWithStatus,
   type DepartmentWithEmployees,
 } from "@shared/schema";
@@ -42,12 +39,7 @@ export interface IStorage {
   updateEmployeeStatus(status: InsertEmployeeStatus): Promise<EmployeeStatus>;
   getAllEmployeeStatuses(): Promise<EmployeeStatus[]>;
 
-  // Attendance operations
-  getAttendanceRecords(employeeId: number, startDate: Date, endDate: Date): Promise<AttendanceRecord[]>;
-  createAttendanceRecord(record: InsertAttendanceRecord): Promise<AttendanceRecord>;
-  updateAttendanceRecord(id: number, record: Partial<InsertAttendanceRecord>): Promise<AttendanceRecord>;
-  getTodayAttendance(employeeId: number): Promise<AttendanceRecord | undefined>;
-  getMonthlyAttendance(employeeId: number, year: number, month: number): Promise<AttendanceRecord[]>;
+
 }
 
 export class DatabaseStorage implements IStorage {
@@ -153,59 +145,7 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(employeeStatus);
   }
 
-  // Attendance operations
-  async getAttendanceRecords(employeeId: number, startDate: Date, endDate: Date): Promise<AttendanceRecord[]> {
-    return await db
-      .select()
-      .from(attendanceRecords)
-      .where(
-        and(
-          eq(attendanceRecords.employeeId, employeeId),
-          gte(attendanceRecords.date, startDate),
-          lte(attendanceRecords.date, endDate)
-        )
-      )
-      .orderBy(desc(attendanceRecords.date));
-  }
 
-  async createAttendanceRecord(record: InsertAttendanceRecord): Promise<AttendanceRecord> {
-    const [attendance] = await db.insert(attendanceRecords).values(record).returning();
-    return attendance;
-  }
-
-  async updateAttendanceRecord(id: number, record: Partial<InsertAttendanceRecord>): Promise<AttendanceRecord> {
-    const [attendance] = await db
-      .update(attendanceRecords)
-      .set(record)
-      .where(eq(attendanceRecords.id, id))
-      .returning();
-    return attendance;
-  }
-
-  async getTodayAttendance(employeeId: number): Promise<AttendanceRecord | undefined> {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const [record] = await db
-      .select()
-      .from(attendanceRecords)
-      .where(
-        and(
-          eq(attendanceRecords.employeeId, employeeId),
-          gte(attendanceRecords.date, today),
-          lte(attendanceRecords.date, tomorrow)
-        )
-      );
-    return record;
-  }
-
-  async getMonthlyAttendance(employeeId: number, year: number, month: number): Promise<AttendanceRecord[]> {
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0);
-    return this.getAttendanceRecords(employeeId, startDate, endDate);
-  }
 }
 
 export const storage = new DatabaseStorage();
