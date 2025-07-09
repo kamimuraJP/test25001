@@ -14,7 +14,7 @@ export function EmployeeCard({ employee, variant = 'default' }: EmployeeCardProp
   return (
     <div className={cn(
       'flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors',
-      isLargeDisplay && 'p-4 bg-gray-700 text-white hover:bg-gray-600'
+      isLargeDisplay && 'p-4 bg-white border border-gray-200 text-gray-900 hover:bg-gray-50 shadow-sm'
     )}>
       <div className="flex items-center space-x-3">
         <img
@@ -28,20 +28,20 @@ export function EmployeeCard({ employee, variant = 'default' }: EmployeeCardProp
         <div>
           <div className={cn(
             'font-medium',
-            isLargeDisplay ? 'text-lg text-white' : 'text-gray-900'
+            isLargeDisplay ? 'text-lg text-gray-900' : 'text-gray-900'
           )}>
             {employee.firstNameJa} {employee.lastNameJa}
           </div>
           <div className={cn(
             'text-xs',
-            isLargeDisplay ? 'opacity-75 text-gray-300' : 'text-gray-500'
+            isLargeDisplay ? 'text-gray-600' : 'text-gray-500'
           )}>
             {employee.positionJa}
           </div>
           {employee.status?.comment && (
             <div className={cn(
               'text-xs mt-1 italic',
-              isLargeDisplay ? 'text-blue-200' : 'text-blue-600'
+              isLargeDisplay ? 'text-blue-600' : 'text-blue-600'
             )}>
               "{employee.status.comment}"
             </div>
@@ -56,7 +56,7 @@ export function EmployeeCard({ employee, variant = 'default' }: EmployeeCardProp
         {employee.status?.lastUpdated && (
           <span className={cn(
             'text-xs',
-            isLargeDisplay ? 'text-lg opacity-75 text-gray-300' : 'text-gray-500'
+            isLargeDisplay ? 'text-lg text-gray-600' : 'text-gray-500'
           )}>
             {formatTime(employee.status.lastUpdated)}
           </span>
