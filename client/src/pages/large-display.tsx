@@ -5,15 +5,24 @@ import { DepartmentCard } from '@/components/department-card';
 import { useWebSocket } from '@/hooks/use-websocket';
 import { formatDate } from '@/lib/utils';
 import { RefreshCw } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function LargeDisplay() {
   const [autoRefreshCountdown, setAutoRefreshCountdown] = useState(30);
+  const [activeTab, setActiveTab] = useState<string>('');
   const { lastMessage } = useWebSocket();
 
   const { data: departments, isLoading, refetch } = useQuery<DepartmentWithEmployees[]>({
     queryKey: ['/api/departments'],
     refetchInterval: 30000, // Auto-refresh every 30 seconds
   });
+
+  // Set first department as active tab on data load
+  useEffect(() => {
+    if (departments && departments.length > 0 && !activeTab) {
+      setActiveTab(departments[0].id.toString());
+    }
+  }, [departments, activeTab]);
 
   // Auto-refresh countdown
   useEffect(() => {
@@ -49,37 +58,56 @@ export default function LargeDisplay() {
   }
 
   return (
-    <div className="p-8 bg-gray-900 text-white min-h-screen">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-2">在席状況一覧</h1>
-        <div className="text-xl opacity-75">
+    <div className="p-6 bg-gray-900 text-white min-h-screen">
+      <div className="text-center mb-6">
+        <h1 className="text-3xl font-bold mb-2">在席状況一覧</h1>
+        <div className="text-lg opacity-75">
           {formatDate(new Date())}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-        {departments?.map((department) => (
-          <DepartmentCard 
-            key={department.id} 
-            department={department} 
-            variant="large-display"
-          />
-        ))}
+      <div className="max-w-7xl mx-auto">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-5 bg-gray-800 h-20 text-lg mb-6">
+            {departments?.map((department) => (
+              <TabsTrigger 
+                key={department.id} 
+                value={department.id.toString()}
+                className="flex flex-col items-center justify-center p-3 data-[state=active]:bg-blue-600 data-[state=active]:text-white hover:bg-gray-700 transition-colors"
+              >
+                <div className="text-base font-medium">{department.nameJa}</div>
+                <div className="text-sm opacity-75">
+                  {department.employees.length}名
+                </div>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          
+          {departments?.map((department) => (
+            <TabsContent key={department.id} value={department.id.toString()} className="mt-0">
+              <div className="flex justify-center">
+                <DepartmentCard 
+                  department={department} 
+                  variant="large-display"
+                />
+              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
       </div>
 
       {/* Auto-refresh indicator */}
-      <div className="fixed bottom-8 right-8 bg-gray-800 rounded-lg p-4">
+      <div className="fixed bottom-6 right-6 bg-gray-800 rounded-lg p-3">
         <div className="flex items-center space-x-2 text-sm">
           <RefreshCw className={`h-4 w-4 text-blue-400 ${autoRefreshCountdown <= 5 ? 'animate-spin' : ''}`} />
           <span>自動更新: {autoRefreshCountdown}秒</span>
         </div>
       </div>
 
-      {/* Touch instruction for large displays */}
-      <div className="fixed bottom-8 left-8 bg-gray-800 rounded-lg p-4 opacity-75">
+      {/* Tab navigation instruction */}
+      <div className="fixed bottom-6 left-6 bg-gray-800 rounded-lg p-3 opacity-75">
         <div className="text-sm text-gray-300">
-          <i className="fas fa-hand-pointer mr-2" />
-          画面をタップして詳細表示
+          各部署のタブをクリックして表示切り替え
         </div>
       </div>
     </div>
