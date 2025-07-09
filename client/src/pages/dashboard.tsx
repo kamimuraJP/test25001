@@ -17,12 +17,17 @@ import {
   Edit, 
   TrendingUp,
   Search,
-  MessageSquare
+  MessageSquare,
+  Building,
+  UserX,
+  MapPin,
+  Home,
+  CalendarX
 } from 'lucide-react';
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
+
   const [selectedStatus, setSelectedStatus] = useState<StatusType>('on-site');
   const [statusComment, setStatusComment] = useState('');
   const { toast } = useToast();
@@ -64,7 +69,6 @@ export default function Dashboard() {
         description: "ステータスが更新されました",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/departments'] });
-      setIsStatusDialogOpen(false);
       setStatusComment('');
     },
     onError: () => {
@@ -123,6 +127,86 @@ export default function Dashboard() {
 
   return (
     <div className="p-6">
+      {/* Quick Actions */}
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">クイックアクション</h2>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+          <Button
+            variant={selectedStatus === 'on-site' ? 'default' : 'outline'}
+            size="sm"
+            className="flex items-center gap-2"
+            onClick={() => setSelectedStatus('on-site')}
+          >
+            <Building className="h-4 w-4" />
+            在席
+          </Button>
+          <Button
+            variant={selectedStatus === 'absent' ? 'default' : 'outline'}
+            size="sm"
+            className="flex items-center gap-2"
+            onClick={() => setSelectedStatus('absent')}
+          >
+            <UserX className="h-4 w-4" />
+            離席
+          </Button>
+          <Button
+            variant={selectedStatus === 'out' ? 'default' : 'outline'}
+            size="sm"
+            className="flex items-center gap-2"
+            onClick={() => setSelectedStatus('out')}
+          >
+            <MapPin className="h-4 w-4" />
+            外出中
+          </Button>
+          <Button
+            variant={selectedStatus === 'remote' ? 'default' : 'outline'}
+            size="sm"
+            className="flex items-center gap-2"
+            onClick={() => setSelectedStatus('remote')}
+          >
+            <Home className="h-4 w-4" />
+            テレワーク
+          </Button>
+          <Button
+            variant={selectedStatus === 'off' ? 'default' : 'outline'}
+            size="sm"
+            className="flex items-center gap-2"
+            onClick={() => setSelectedStatus('off')}
+          >
+            <CalendarX className="h-4 w-4" />
+            休み
+          </Button>
+        </div>
+        
+        {/* Status Comment Input */}
+        <div className="max-w-md">
+          <label className="text-sm font-medium text-gray-700 mb-2 block">
+            ステータスコメント (20文字以内)
+          </label>
+          <div className="flex gap-2">
+            <Textarea
+              value={statusComment}
+              onChange={(e) => setStatusComment(e.target.value)}
+              placeholder="状況や連絡事項を入力..."
+              maxLength={20}
+              className="resize-none flex-1"
+              rows={1}
+            />
+            <Button 
+              size="sm"
+              onClick={handleStatusUpdate}
+              disabled={updateStatusMutation.isPending}
+              className="px-4"
+            >
+              {updateStatusMutation.isPending ? '更新中...' : '更新'}
+            </Button>
+          </div>
+          <div className="text-xs text-gray-500 mt-1">
+            {statusComment.length}/20文字
+          </div>
+        </div>
+      </div>
+
       {/* Search Bar - Mobile */}
       <div className="mb-6 md:hidden">
         <div className="relative">
@@ -144,115 +228,7 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Quick Actions */}
-      <div className="mt-8">
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">クイックアクション</h3>
-            <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
 
-              <Dialog open={isStatusDialogOpen} onOpenChange={setIsStatusDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="flex flex-col items-center p-4 h-auto space-y-2"
-                  >
-                    <Edit className="h-6 w-6 text-green-600" />
-                    <span className="text-sm">ステータス変更</span>
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>ステータス変更</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">現在のステータス</label>
-                      {currentUser?.status && (
-                        <div className="flex items-center space-x-2">
-                          <StatusBadge status={currentUser.status.status as StatusType} />
-                          {currentUser.status.comment && (
-                            <span className="text-sm text-gray-600">
-                              - {currentUser.status.comment}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">新しいステータス</label>
-                      <Select value={selectedStatus} onValueChange={(value: StatusType) => setSelectedStatus(value)}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(STATUS_TYPES).map(([key, value]) => (
-                            <SelectItem key={key} value={key}>
-                              <div className="flex items-center space-x-2">
-                                <div 
-                                  className={`w-3 h-3 rounded-full ${value.bgColor}`}
-                                ></div>
-                                <span>{value.label}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        コメント (20文字以内)
-                      </label>
-                      <Textarea
-                        value={statusComment}
-                        onChange={(e) => setStatusComment(e.target.value)}
-                        placeholder="状況や連絡事項を入力..."
-                        maxLength={20}
-                        className="resize-none"
-                        rows={2}
-                      />
-                      <div className="text-xs text-gray-500 mt-1">
-                        {statusComment.length}/20文字
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end space-x-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setIsStatusDialogOpen(false);
-                          setStatusComment('');
-                        }}
-                      >
-                        キャンセル
-                      </Button>
-                      <Button
-                        onClick={handleStatusUpdate}
-                        disabled={updateStatusMutation.isPending}
-                      >
-                        {updateStatusMutation.isPending ? '更新中...' : '更新'}
-                      </Button>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
-
-              <Button
-                variant="outline"
-                className="flex flex-col items-center p-4 h-auto space-y-2"
-                asChild
-              >
-                <a href="/attendance">
-                  <TrendingUp className="h-6 w-6 text-purple-600" />
-                  <span className="text-sm">ステータス履歴</span>
-                </a>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
 
     </div>
