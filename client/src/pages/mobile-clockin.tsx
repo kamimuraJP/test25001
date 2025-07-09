@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useGeolocation } from '@/hooks/use-geolocation';
 import { useToast } from '@/hooks/use-toast';
 import { formatDate } from '@/lib/utils';
 import { apiRequest } from '@/lib/queryClient';
@@ -14,15 +13,13 @@ import {
   MapPin, 
   Home, 
   UserX,
-  CalendarX,
-  RefreshCw
+  CalendarX
 } from 'lucide-react';
 
 export default function MobileClockIn() {
   const [selectedStatus, setSelectedStatus] = useState<StatusType>('on-site');
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { position, error, loading, refreshLocation } = useGeolocation();
 
   const clockInMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -68,9 +65,9 @@ export default function MobileClockIn() {
     mutationFn: async (status: StatusType) => {
       const data = {
         status,
-        location: position ? `${position.coords.latitude}, ${position.coords.longitude}` : null,
-        latitude: position?.coords.latitude.toString(),
-        longitude: position?.coords.longitude.toString(),
+        location: null,
+        latitude: null,
+        longitude: null,
       };
       await apiRequest('POST', '/api/employees/1/status', data);
     },
@@ -91,39 +88,21 @@ export default function MobileClockIn() {
   });
 
   const handleClockIn = () => {
-    if (!position) {
-      toast({
-        title: "位置情報エラー",
-        description: "位置情報を取得してください",
-        variant: "destructive",
-      });
-      return;
-    }
-
     clockInMutation.mutate({
       employeeId: 1,
       status: selectedStatus,
-      clockInLocation: `${position.coords.latitude}, ${position.coords.longitude}`,
-      clockInLatitude: position.coords.latitude.toString(),
-      clockInLongitude: position.coords.longitude.toString(),
+      clockInLocation: null,
+      clockInLatitude: null,
+      clockInLongitude: null,
     });
   };
 
   const handleClockOut = () => {
-    if (!position) {
-      toast({
-        title: "位置情報エラー",
-        description: "位置情報を取得してください",
-        variant: "destructive",
-      });
-      return;
-    }
-
     clockOutMutation.mutate({
       employeeId: 1,
-      clockOutLocation: `${position.coords.latitude}, ${position.coords.longitude}`,
-      clockOutLatitude: position.coords.latitude.toString(),
-      clockOutLongitude: position.coords.longitude.toString(),
+      clockOutLocation: null,
+      clockOutLatitude: null,
+      clockOutLongitude: null,
     });
   };
 
@@ -144,41 +123,14 @@ export default function MobileClockIn() {
           </div>
           
           <CardContent className="p-6 space-y-4">
-            {/* Location Info */}
-            <div className="text-center">
-              <div className="text-sm text-gray-600 mb-2 flex items-center justify-center gap-2">
-                <MapPin className="h-4 w-4" />
-                現在の位置情報
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={refreshLocation}
-                  disabled={loading}
-                >
-                  <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                </Button>
-              </div>
-              <div className="flex items-center justify-center text-gray-800">
-                {loading && <span className="text-sm">位置情報を取得中...</span>}
-                {error && (
-                  <span className="text-sm text-red-600">
-                    位置情報の取得に失敗しました
-                  </span>
-                )}
-                {position && (
-                  <span className="text-sm">
-                    {position.coords.latitude.toFixed(4)}, {position.coords.longitude.toFixed(4)}
-                  </span>
-                )}
-              </div>
-            </div>
+
 
             {/* Clock In/Out Buttons */}
             <div className="grid grid-cols-2 gap-3">
               <Button
                 className="flex flex-col items-center p-4 h-auto space-y-2 bg-green-600 hover:bg-green-700"
                 onClick={handleClockIn}
-                disabled={clockInMutation.isPending || !position}
+                disabled={clockInMutation.isPending}
               >
                 <LogIn className="h-6 w-6" />
                 <span className="font-medium">出社</span>
@@ -186,7 +138,7 @@ export default function MobileClockIn() {
               <Button
                 className="flex flex-col items-center p-4 h-auto space-y-2 bg-red-600 hover:bg-red-700"
                 onClick={handleClockOut}
-                disabled={clockOutMutation.isPending || !position}
+                disabled={clockOutMutation.isPending}
               >
                 <LogOut className="h-6 w-6" />
                 <span className="font-medium">退社</span>
