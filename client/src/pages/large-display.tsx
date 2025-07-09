@@ -5,7 +5,6 @@ import { DepartmentCard } from '@/components/department-card';
 import { useWebSocket } from '@/hooks/use-websocket';
 import { formatDate } from '@/lib/utils';
 import { RefreshCw } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function LargeDisplay() {
   const [autoRefreshCountdown, setAutoRefreshCountdown] = useState(30);
@@ -57,6 +56,16 @@ export default function LargeDisplay() {
     );
   }
 
+  if (!departments || departments.length === 0) {
+    return (
+      <div className="p-8 bg-gray-900 text-white min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-xl">部署データがありません</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 bg-gray-900 text-white min-h-screen">
       <div className="text-center mb-6">
@@ -67,33 +76,37 @@ export default function LargeDisplay() {
       </div>
 
       <div className="max-w-7xl mx-auto">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5 bg-gray-800 h-20 text-lg mb-6">
-            {departments?.map((department) => (
-              <TabsTrigger 
-                key={department.id} 
-                value={department.id.toString()}
-                className="flex flex-col items-center justify-center p-3 data-[state=active]:bg-blue-600 data-[state=active]:text-white hover:bg-gray-700 transition-colors"
-              >
-                <div className="text-base font-medium">{department.nameJa}</div>
-                <div className="text-sm opacity-75">
-                  {department.employees.length}名
-                </div>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          
-          {departments?.map((department) => (
-            <TabsContent key={department.id} value={department.id.toString()} className="mt-0">
-              <div className="flex justify-center">
-                <DepartmentCard 
-                  department={department} 
-                  variant="large-display"
-                />
+        {/* Tab Navigation */}
+        <div className="grid grid-cols-5 bg-gray-800 rounded-lg mb-6">
+          {departments.map((department) => (
+            <button
+              key={department.id}
+              onClick={() => setActiveTab(department.id.toString())}
+              className={`flex flex-col items-center justify-center p-4 h-20 transition-colors ${
+                activeTab === department.id.toString()
+                  ? 'bg-blue-600 text-white'
+                  : 'hover:bg-gray-700 text-gray-300'
+              }`}
+            >
+              <div className="text-base font-medium">{department.nameJa}</div>
+              <div className="text-sm opacity-75">
+                {department.employees.length}名
               </div>
-            </TabsContent>
+            </button>
           ))}
-        </Tabs>
+        </div>
+        
+        {/* Department Content */}
+        {departments.map((department) => (
+          activeTab === department.id.toString() && (
+            <div key={department.id} className="flex justify-center">
+              <DepartmentCard 
+                department={department} 
+                variant="large-display"
+              />
+            </div>
+          )
+        ))}
       </div>
 
       {/* Auto-refresh indicator */}
