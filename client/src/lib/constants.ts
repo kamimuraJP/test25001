@@ -1,9 +1,21 @@
 export const STATUS_TYPES = {
   'on-site': {
-    label: '出社',
+    label: '在席',
     labelEn: 'On-site',
     icon: 'building',
     color: 'bg-green-500 text-white',
+  },
+  'absent': {
+    label: '離席',
+    labelEn: 'Absent',
+    icon: 'user-x',
+    color: 'bg-yellow-500 text-white',
+  },
+  'out': {
+    label: '外出中',
+    labelEn: 'Out',
+    icon: 'map-pin',
+    color: 'bg-orange-500 text-white',
   },
   'remote': {
     label: 'テレワーク',
@@ -11,23 +23,11 @@ export const STATUS_TYPES = {
     icon: 'home',
     color: 'bg-blue-500 text-white',
   },
-  'direct-commute': {
-    label: '直行',
-    labelEn: 'Direct commute',
-    icon: 'route',
-    color: 'bg-orange-500 text-white',
-  },
-  'direct-return': {
-    label: '直帰',
-    labelEn: 'Direct return',
-    icon: 'route',
-    color: 'bg-purple-500 text-white',
-  },
-  'offline': {
-    label: '退社',
-    labelEn: 'Offline',
-    icon: 'sign-out-alt',
-    color: 'bg-gray-400 text-white',
+  'off': {
+    label: '休み',
+    labelEn: 'Off',
+    icon: 'calendar-x',
+    color: 'bg-gray-500 text-white',
   },
 } as const;
 

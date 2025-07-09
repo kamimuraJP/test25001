@@ -13,7 +13,8 @@ import {
   LogOut, 
   MapPin, 
   Home, 
-  Route,
+  UserX,
+  CalendarX,
   RefreshCw
 } from 'lucide-react';
 
@@ -205,7 +206,29 @@ export default function MobileClockIn() {
                     disabled={updateStatusMutation.isPending}
                   >
                     <i className="fas fa-building" />
-                    出社
+                    在席
+                  </Button>
+                  <Button
+                    variant={selectedStatus === 'absent' ? 'default' : 'outline'}
+                    size="sm"
+                    className="flex items-center gap-2"
+                    onClick={() => handleStatusUpdate('absent')}
+                    disabled={updateStatusMutation.isPending}
+                  >
+                    <UserX className="h-4 w-4" />
+                    離席
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant={selectedStatus === 'out' ? 'default' : 'outline'}
+                    size="sm"
+                    className="flex items-center gap-2"
+                    onClick={() => handleStatusUpdate('out')}
+                    disabled={updateStatusMutation.isPending}
+                  >
+                    <MapPin className="h-4 w-4" />
+                    外出中
                   </Button>
                   <Button
                     variant={selectedStatus === 'remote' ? 'default' : 'outline'}
@@ -218,26 +241,16 @@ export default function MobileClockIn() {
                     テレワーク
                   </Button>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="flex justify-center">
                   <Button
-                    variant={selectedStatus === 'direct-commute' ? 'default' : 'outline'}
+                    variant={selectedStatus === 'off' ? 'default' : 'outline'}
                     size="sm"
-                    className="flex items-center gap-2"
-                    onClick={() => handleStatusUpdate('direct-commute')}
+                    className="flex items-center gap-2 w-full"
+                    onClick={() => handleStatusUpdate('off')}
                     disabled={updateStatusMutation.isPending}
                   >
-                    <Route className="h-4 w-4" />
-                    直行
-                  </Button>
-                  <Button
-                    variant={selectedStatus === 'direct-return' ? 'default' : 'outline'}
-                    size="sm"
-                    className="flex items-center gap-2"
-                    onClick={() => handleStatusUpdate('direct-return')}
-                    disabled={updateStatusMutation.isPending}
-                  >
-                    <Route className="h-4 w-4" />
-                    直帰
+                    <CalendarX className="h-4 w-4" />
+                    休み
                   </Button>
                 </div>
               </div>
