@@ -112,6 +112,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         icon: 'users'
       });
 
+      const marketingDept = await storage.createDepartment({
+        name: 'Marketing',
+        nameJa: 'マーケティング部',
+        icon: 'megaphone'
+      });
+
+      const financeDept = await storage.createDepartment({
+        name: 'Finance',
+        nameJa: '経理部',
+        icon: 'calculator'
+      });
+
       // Create employees
       const employees = [
         {
@@ -171,6 +183,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
           position: 'Sales Representative',
           positionJa: '営業担当',
           departmentId: salesDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Koji',
+          lastName: 'Nakamura',
+          firstNameJa: '康二',
+          lastNameJa: '中村',
+          email: 'nakamura@company.com',
+          position: 'Marketing Manager',
+          positionJa: 'マーケティング部長',
+          departmentId: marketingDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Emi',
+          lastName: 'Takahashi',
+          firstNameJa: '恵美',
+          lastNameJa: '高橋',
+          email: 'takahashi@company.com',
+          position: 'Marketing Specialist',
+          positionJa: 'マーケティング担当',
+          departmentId: marketingDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Hideki',
+          lastName: 'Ito',
+          firstNameJa: '英樹',
+          lastNameJa: '伊藤',
+          email: 'ito@company.com',
+          position: 'Finance Manager',
+          positionJa: '経理部長',
+          departmentId: financeDept.id,
+          profileImageUrl: null,
+          isActive: true
+        },
+        {
+          firstName: 'Satomi',
+          lastName: 'Kobayashi',
+          firstNameJa: '智美',
+          lastNameJa: '小林',
+          email: 'kobayashi@company.com',
+          position: 'Accountant',
+          positionJa: '経理担当',
+          departmentId: financeDept.id,
           profileImageUrl: null,
           isActive: true
         }
